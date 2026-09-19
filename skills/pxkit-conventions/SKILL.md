@@ -52,7 +52,7 @@ Everything else in this skill is judgment. These are not.
 - kebab-case for every filename, components included. One primary export per file; filename mirrors the export.
 - `.tsx` if and only if the file contains JSX.
 - camelCase variables and functions; PascalCase components and types. Booleans read `is/has/should`; internal handlers `handle*`; callback props `on*`.
-- **No barrel files.** Never create an `index.ts` that only re-exports. Import the defining file directly, via the project's alias.
+- **No barrel files, no re-export middlemen.** Never create an `index.ts` that only re-exports, and never import a symbol into a file just to export it again so consumers import it from there. Import the defining file directly, via the project's alias. The one exception is a re-export that adds a directive the source lacks (`components/motion.tsx` adding `'use client'`).
 
 ### Components
 
@@ -118,7 +118,7 @@ Everything else in this skill is judgment. These are not.
 
 ## Reviewer rejects on sight
 
-- No barrel `index.ts`; no default exports outside Next.js file conventions; no PascalCase filenames.
+- No barrel `index.ts`; no file that imports a symbol only to re-export it; no default exports outside Next.js file conventions; no PascalCase filenames.
 - No `any`; no `enum`; no parallel async booleans; no server data in `useState` + `fetch`.
 - No raw `fetch` in a service when a shared `http` client exists; no service that throws to the UI; no vendor DTO type imported outside its service.
 - No hardcoded user-facing error strings; no error key that is a sentence; no `process.env` outside `env.ts`.

@@ -5,15 +5,24 @@
 - **kebab-case for every filename**, components included: `button.tsx`, `use-upload-file.ts`, `what-i-do.tsx`. Never PascalCase filenames, even when the export is PascalCase.
 - One primary component/hook per file; the filename mirrors the export (`input-field.tsx` → `InputField`, `use-countdown.ts` → `useCountdown`).
 - `.tsx` if and only if the file contains JSX — a hook with JSX is `.tsx`, a hook without is `.ts`. In workspace packages, hooks are logic-only `.ts` — anything returning JSX moves to `components/`, because wildcard subpath exports resolve one extension per directory (see [structure.md](structure.md)).
-- **No barrel files.** Never create an `index.ts` that only re-exports. Import directly from the file that defines the symbol:
+- **No barrel files, no re-export middlemen.** Never create an `index.ts` that only re-exports, and never import a symbol into a file just to export it again (or alias it) so that consumers import it from there. Every symbol is imported from the file that defines it:
 
 ```ts
 // Good
 import { useUploadFile } from '@/hooks/use-upload-file';
+import { http } from '@/lib/http';
 
 // Bad — barrel indirection
 import { useUploadFile } from '@/hooks';
+
+// Bad — middleman: lib/api.ts imports http only to hand it on
+import { http } from './http';
+export { http };
+export const apiClient = http;
+// …and consumers now import { http } from '@/lib/api'
 ```
+
+  A middleman adds a file to every trace and hides where the symbol really lives. The one re-export that earns its place is a file that *adds* something the source lacks — `components/motion.tsx` adding `'use client'` to a library export (see [nextjs.md](nextjs.md)). A re-export that adds nothing is deleted.
 
 ## Identifiers
 

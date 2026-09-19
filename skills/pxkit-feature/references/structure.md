@@ -8,7 +8,7 @@ Before creating directories or packages, **inspect how this project is already o
 
 ## No barrel files — anywhere
 
-- Never create an `index.ts` whose job is re-exporting. Consumers import the defining file directly:
+- Never create an `index.ts` whose job is re-exporting, and never route a symbol through a middleman file (`import { http } from './http'; export { http }`) so consumers import it from there. Consumers import the defining file directly:
 
 ```ts
 // Good
@@ -19,7 +19,7 @@ import { Dropzone } from '@/features/upload/components/dropzone';
 import { useUploadFile, Dropzone } from '@/features/upload';
 ```
 
-Direct imports keep tree-shaking exact, keep server/client boundaries visible, and make "where is this defined" a one-jump question.
+Direct imports keep tree-shaking exact, keep server/client boundaries visible, and make "where is this defined" a one-jump question. The only re-export that stays is one that adds something the source lacks, such as `components/motion.tsx` adding `'use client'`.
 
 ## Feature module (default)
 
