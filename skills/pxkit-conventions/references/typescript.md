@@ -4,7 +4,7 @@
 
 - `interface` for object shapes (props, state, DTOs). `type` for unions, aliases, and function-derived types.
 - Props interfaces are named `<Component>Props` — no `I` prefix, no `Props` alone.
-- **Never inline a type definition; always declare it.** Parameters, props, return shapes, and state are typed with a named `interface`/`type` declared above their first use — never `({ a, b }: { a: string; b: number })`, never `useState<{ status: string; data?: T }>()`. A declared name says what the shape *is*; an inline literal makes the reader rebuild it from the fields every time it appears, and the second use of the same shape copies it instead of reusing it.
+- **Never inline a type definition; always declare it.** Object shapes and unions are declared as a named `interface`/`type` above their first use, then referenced — never `({ a, b }: { a: string; b: number })`, never `useState<'idle' | 'loading'>()`. Composing *declared* names inline is fine (`Result<Invoice, InvoiceErrorKey>`, `ContextValue | null`, `Record<string, unknown>`); writing out a new shape inline is not. A declared name says what the shape *is*; an inline literal makes the reader rebuild it from the fields every time it appears, and the second use of the same shape copies it instead of reusing it.
 
 ```ts
 interface SearchInputProps {
@@ -25,8 +25,9 @@ const [isLoading, setIsLoading] = useState(false);
 const [isError, setIsError] = useState(false);
 const [isSuccess, setIsSuccess] = useState(false);
 
-// Good (default) — one bare union, one line
-const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+// Good (default) — one bare union, declared once
+type Status = 'idle' | 'loading' | 'success' | 'error';
+const [status, setStatus] = useState<Status>('idle');
 
 // Escalate only when data/errorKey must be tied to the state
 type State =

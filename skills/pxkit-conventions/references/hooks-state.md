@@ -78,4 +78,6 @@ const [CheckoutProvider, useCheckout] = createSafeContext<CheckoutContextValue>(
 );
 ```
 
+`createSafeContext` is a factory, not a hook, so its tuple return is fine: it is destructured once at module scope, never at a call site.
+
 **When to use context:** state genuinely shared by a subtree (auth/session, theme, an active checkout) that many descendants read. **When not:** to skip one level of props — compose via `children` first (see [components.md](components.md)); and never for server data a Server Component could fetch where it's used.

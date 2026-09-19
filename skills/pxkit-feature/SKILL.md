@@ -12,7 +12,7 @@ How a feature is structured and where it lives. Full detail in [references/struc
 - **No files before step 1 is answered from the repo.** A second layout pattern in one repo costs every reader forever.
 - **No package for a single consumer.** Colocated code can be extracted later; a package is a build and versioning commitment.
 - **No `index.ts` anywhere in the module.** A barrel turns "where is this defined" into a two-jump question.
-- **No shared helper inside the module until it has two identical callers.** Duplicate the small pure thing first.
+- **No `lib/` helper, `types/` entry, or `constants/` entry with a single consumer.** It stays in the file that uses it until a second file imports it.
 - **Present the layout (step 2) before creating files** for a new feature. Wait for confirmation.
 
 ## 1. Pick the feature's home

@@ -14,7 +14,7 @@ Everything else in this skill is judgment. These are not.
 - **Traceability.** A reader must understand what a function or component does without opening more than one other file. If understanding it takes 3–4 jumps, the structure is wrong: inline it, colocate it, or pass the data directly.
 - **Flat call stacks.** Page → section → primitive. Component → hook → service → boundary. No pass-through wrappers, no helper that only calls another helper, no prop drilled past one intermediate.
 - **One concept, one file.** Everything only one file uses lives in that file: a component's props interface, its local sub-components, its constants, its variant map, its 3-line helper. Move a thing out only when a second file imports it. A reader gets the full picture from one file, not from five 10-line files.
-- **Duplication over the wrong abstraction.** Two similar blocks of code are fine. A shared function that needs a flag, an options bag, or a generic parameter to serve two callers is two functions. Extract only when the third caller arrives and the shape is identical.
+- **Duplication over the wrong abstraction.** Two similar blocks of code are fine. A shared function that needs a flag, an options bag, or a generic parameter to serve two callers is two functions. Sharing and abstracting are different moves: a thing that already exists moves to a shared file the moment a second file imports it; *unifying* similar code into a new abstraction waits for the third identical case.
 - **Simple over clever.** The obvious solution beats the elegant one. If a reviewer would need to think to see that it works, rewrite it so they don't.
 - **Written for humans.** Names say what the value is in business terms (`isEligibleForRenewal`, not `flag2`). Comments explain *why*, never restate *what* the code already says. No comment is better than a comment that repeats the line below it.
 
@@ -50,7 +50,7 @@ Everything else in this skill is judgment. These are not.
 
 ### Naming & files
 
-- kebab-case for every filename, components included. One *public* export per file (the filename mirrors it); the file also holds every private thing only it uses.
+- kebab-case for every filename, components included. One public *concept* per file: a component with its compound parts, or a hook; the filename mirrors the main export. The file also holds every private thing only it uses.
 - `.tsx` if and only if the file contains JSX.
 - camelCase variables and functions; PascalCase components and types. Booleans read `is/has/should`; internal handlers `handle*`; callback props `on*`.
 - **No barrel files, no re-export middlemen.** Never create an `index.ts` that only re-exports, and never import a symbol into a file just to export it again so consumers import it from there. Import the defining file directly, via the project's alias. The one exception is a re-export that adds a directive the source lacks (`components/motion.tsx` adding `'use client'`).
@@ -74,7 +74,7 @@ Everything else in this skill is judgment. These are not.
 
 ### TypeScript
 
-- `interface` for object shapes; `type` for unions and aliases. **Never inline a type definition**: parameters, props, state, and return shapes get a named `interface`/`type` declared above their first use, never `({ a }: { a: string })`. String-literal unions or `as const` + `keyof typeof`, never `enum`.
+- `interface` for object shapes; `type` for unions and aliases. **Never inline a type definition**: object shapes and unions get a named `interface`/`type` declared above their first use, never `({ a }: { a: string })` or `useState<'idle' | 'loading'>()`; composing declared names inline (`Result<Invoice, InvoiceErrorKey>`) is fine. String-literal unions or `as const` + `keyof typeof`, never `enum`.
 - Derive, don't restate: `z.infer`, `ReturnType`, `keyof typeof`, `Pick`. Annotate only real contracts (params, exported signatures, a mapper's domain return); let obvious consts and returns infer.
 - `unknown` over `any`. Model invalid states out (Draft vs Saved shapes, status unions).
 - Array syntax follows the repo (`T[]` or `Array<T>`); never churn-rewrite it. JSDoc only where the contract isn't obvious from the signature.
