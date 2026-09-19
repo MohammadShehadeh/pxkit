@@ -40,16 +40,19 @@ const [state, setState] = useState<State>({ status: 'idle' });
 - Split entity shapes by lifecycle stage instead of making everything optional:
 
 ```ts
+type UserRole = 'admin' | 'member';
+type UserStatus = 'active' | 'disabled';
+
 interface DraftUser {
   email: string;
-  role: 'admin' | 'member';
+  role: UserRole;
 }
 
 interface SavedUser {
   id: string;
   email: string;
-  role: 'admin' | 'member';
-  status: 'active' | 'disabled';
+  role: UserRole;
+  status: UserStatus;
 }
 ```
 

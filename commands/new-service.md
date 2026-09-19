@@ -19,7 +19,7 @@ Find and reuse: `Result<T, K>`, the shared `http` client (`lib/http.ts`), `error
 - Success type (`null` or domain shape)
 - Payload zod schema → `z.infer` type
 - Narrowed `ErrorKey` union — reason keys when known, catch-all only when unknown
-- Pure mappers vs I/O shell split (`lib/` tested, `services/` thin)
+- Mapper (in the service file, tested next to it) vs schema and pure logic (`lib/`, tested) vs I/O shell
 
 **Wait for confirmation.**
 
@@ -29,7 +29,7 @@ Find and reuse: `Result<T, K>`, the shared `http` client (`lib/http.ts`), `error
 - **Service**: goes through the shared `http` client (no raw `fetch`/headers/timeout — the client owns those); DTO mapping stays inside the file; return `Result`, never throw to UI. Raw-SDK services (non-HTTP) keep their own try/catch with `'Error in <fn>::'`.
 - **Action/handler** (if needed): thin `'use server'` or route handler — validate, delegate, return plain `Result`.
 - **Error keys** added to feature's `constants/error-keys.ts`.
-- **Tests** on pure mappers in `lib/` — not on fetch wiring.
+- **Tests** on the mapper (next to the service) and on `lib/` logic — not on fetch wiring.
 
 ## 4. Verify
 

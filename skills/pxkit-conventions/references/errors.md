@@ -4,7 +4,7 @@
 
 ## Error keys
 
-- Keys are **string-literal unions** — the union is the source of truth and the value is the name; no const object, no second spelling to keep in sync. **Shared keys are transport/session-level only** (`NETWORK`, `TIMEOUT`, `UNAUTHORIZED`, `RATE_LIMITED`); everything else is feature-prefixed. Compose the app-wide union from per-feature sections — one module in a single app, or per-feature `constants/error-keys.ts` when features are packaged:
+- Keys are **string-literal unions** — the union is the source of truth and the value is the name; no const object, no second spelling to keep in sync. **Shared keys are transport/session-level only** (`NETWORK`, `TIMEOUT`, `UNAUTHORIZED`, `RATE_LIMITED`); everything else is feature-prefixed. Each feature declares its keys in its own `constants/error-keys.ts`; the app-wide `ErrorKey` union composes them (a small app with no feature modules keeps everything in one file):
 
 ```ts
 // constants/error-keys.ts
@@ -106,12 +106,12 @@ For `fetch` calls this whole shape lives **once** in the shared `http` client, n
 
 ## Narrow before reading
 
-`error` is `unknown`; check `instanceof Error` when the log needs details. The UI still only ever receives a key:
+`error` is `unknown`; check `instanceof Error` when the log needs details. This is the catch inside a raw-SDK service; the UI still only ever receives a key:
 
 ```ts
 } catch (error) {
   console.error('Error in submitOrder::', error instanceof Error ? error.message : error);
-  setState({ status: 'error', errorKey: errorKeyFromException(error) });
+  return { ok: false, errorKey: errorKeyFromException(error) };
 }
 ```
 

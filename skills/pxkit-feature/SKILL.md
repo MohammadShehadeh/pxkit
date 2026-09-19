@@ -82,5 +82,5 @@ Wildcards resolve one extension per directory: `hooks/`, `actions/`, `services/`
 - `rg --files <feature-home> | rg "index\.ts$"` returns nothing.
 - `rg "export default" <feature-home>` matches only Next.js file conventions.
 - `rg --files <feature-home>` shows only kebab-case names and no empty directories.
-- Any file in the module can be understood by opening at most one other file.
+- Any file in the module can be understood by opening at most two other files.
 - The repo's `typecheck`, `lint`, and `test` scripts pass.

@@ -57,7 +57,7 @@ export const paginate = <T>(rows: T[], page: number, size: number): T[] =>
   rows.slice((page - 1) * size, page * size);
 ```
 
-Compose them as a **derivation** over the source list — held once, recomputed when inputs change, never copied into its own state:
+Compose them as a **derivation** over the source list — held once, recomputed when inputs change, never copied into its own state. The `useMemo` below is the one sanctioned use outside measured hot paths; in a React Compiler project write the plain expressions:
 
 ```ts
 const filtered = useMemo(() => sortItems(searchItems(items, q), sort), [items, q, sort]);

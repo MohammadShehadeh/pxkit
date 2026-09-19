@@ -1,6 +1,6 @@
 ---
 name: pxkit-debug
-description: The pxkit debugging method for TypeScript, React, and Next.js — reproduce, localize top-down (page → section → block → component), map references both ways, trace to the root cause (interrogating where/why/how for wrong-value bugs), and account for the blast radius before fixing. Use whenever the user reports a bug, regression, crash, flaky behavior, "wrong value", "it used to work", or asks why something renders or computes incorrectly — even when they only ask for a quick fix.
+description: The pxkit debugging method for TypeScript, React, and Next.js — reproduce, localize top-down (page → section → primitive), map references both ways, trace to the root cause (interrogating where/why/how for wrong-value bugs), and account for the blast radius before fixing. Use whenever the user reports a bug, regression, crash, flaky behavior, "wrong value", "it used to work", or asks why something renders or computes incorrectly — even when they only ask for a quick fix.
 ---
 
 # pxkit Debug
@@ -18,7 +18,7 @@ Bugs are found by **narrowing location**, fixed by **tracing causation**, and sh
 
 Reproduce first. Then narrow along the render hierarchy:
 
-**page → section → block → component**
+**page → section → primitive**
 
 At each level ask "does the bug still reproduce below this point?" and descend. Flat trees (`pxkit-conventions`: `components` rule) keep this walk short; if localizing takes more than a few jumps, that is itself a finding worth reporting.
 
@@ -59,7 +59,7 @@ The root cause often sits in shared code, and the higher the abstraction, the mo
 
 ## 5. Verify
 
-- The original reproduction path is clean: page → section → block → component.
+- The original reproduction path is clean: page → section → primitive.
 - Every consumer from step 4's list still behaves: typecheck, tests, and a look at the screens sharing the code.
 - Add the regression test where the decision lives (pure logic, `pxkit-conventions`: `testing` rule), not where the symptom rendered.
 - The diff contains only the fix and its test. No opportunistic cleanup rode along.

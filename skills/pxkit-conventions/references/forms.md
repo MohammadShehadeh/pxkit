@@ -16,8 +16,8 @@ const form = useForm<CheckoutFormValues>({
 });
 ```
 
-- Guard double-submits with a per-button async-action hook (`{ isProcessing, execute }`), not disabled-flag spaghetti.
-- Field and submit errors render from a typed `errorKey` resolved at render time — never hardcoded strings (see [errors.md](errors.md)).
+- Guard double-submits with `form.formState.isSubmitting`; RHF already tracks it, so no extra hook or hand-managed disabled flag.
+- Field validation messages are defined once in the zod schema (a message key resolved through i18n, or the copy itself in a single-language app) and rendered from `errors.<field>.message`. Submit failures render from a typed `errorKey` resolved at render time — never a string literal in the component (see [errors.md](errors.md)).
 
 ## Markup
 

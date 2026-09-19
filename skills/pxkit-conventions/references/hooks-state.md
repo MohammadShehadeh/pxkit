@@ -2,7 +2,7 @@
 
 ## Custom hooks
 
-- **Hooks return an object, never a tuple** — expose `status` itself (consumers compare or `switch` exhaustively) plus only the derived flags call-sites actually read. Booleans are always derived from `status`, never stored:
+- **Hooks return an object, never a tuple** — a multi-state async flow exposes `status` itself (consumers compare or `switch` exhaustively) plus only the derived flags call-sites actually read; a hook with a single in-flight flag (`isPending` from a transition) needs no `status`. Booleans are always derived from `status`, never stored:
 
 ```ts
 return {

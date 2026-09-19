@@ -34,7 +34,7 @@ Find what already exists and reuse it:
 | Operation name | `submitContactMessage` |
 | Success shape | `null` or domain type `Invoice` |
 | Payload | zod schema → `z.infer` type |
-| Error keys (narrowed) | `'CONTACT_SUBMIT_FAILED' \| SharedErrorKey` + reason keys like `'CONTACT_RATE_LIMITED'` when known |
+| Error keys (narrowed) | `'CONTACT_SUBMIT_FAILED' \| SharedErrorKey` + reason keys like `'CONTACT_MESSAGE_TOO_LONG'` when known |
 | External system | REST endpoint, DB, vendor SDK |
 
 Add new keys to the feature's `constants/error-keys.ts`. Name the **reason when known** (`INVOICE_NOT_FOUND` on 404); the operation catch-all only when the reason is unknown.
@@ -43,10 +43,11 @@ Add new keys to the feature's `constants/error-keys.ts`. Name the **reason when 
 
 | Layer | Lives in | Tested |
 | --- | --- | --- |
-| Pure mapping / validation logic | `lib/` — `parseInvoice`, `buildQuery` | Yes — colocated `*.test.ts` |
-| I/O shell | `services/` or `actions/` | Integration/manual; logic stays in `lib/` |
+| DTO mapper (`parseInvoice`) | the service file, next to the DTO type it reads | Yes — `services/invoice.test.ts` |
+| Schema and other pure logic (`contactFormSchema`, `buildQuery`) | `lib/` | Yes — colocated `*.test.ts` |
+| I/O shell | `services/` or `actions/` | Integration/manual |
 
-The mapper parses wire values (date strings, numeric strings, vendor enums) to domain types **once**; nothing downstream re-parses.
+The mapper lives in the service file so the vendor DTO type never leaves it. It parses wire values (date strings, numeric strings, vendor enums) to domain types **once**; nothing downstream re-parses.
 
 ## 4. Service function template
 
@@ -56,7 +57,7 @@ The service names the endpoint, narrows the keys, and maps the DTO:
 // services/contact.ts — write with no body payload back
 import type { Result } from '@/types/result';
 import { http } from '@/lib/http';
-import { type ContactFormPayload } from '../lib/contact-schema';
+import { type ContactFormPayload } from '@/features/contact/lib/contact-schema';
 
 export const submitContactMessage = (
   payload: ContactFormPayload,
@@ -81,7 +82,7 @@ export const fetchInvoice = async (id: string): Promise<Result<Invoice, InvoiceE
 
 ## 5. Schema at the boundary
 
-Colocate the zod schema with the operation; one schema drives service validation and form validation:
+The zod schema lives in the feature's `lib/` (`lib/contact-schema.ts`); the service and the form import the same one:
 
 ```ts
 export const contactFormSchema = z.object({
@@ -102,7 +103,7 @@ Validate inbound payloads at the top of the service, or in the action before del
 
 export const submitContact = async (payload: ContactFormPayload): Promise<Result<null, ContactErrorKey>> => {
   const parsed = contactFormSchema.safeParse(payload);
-  if (!parsed.success) return { ok: false, errorKey: 'CONTACT_VALIDATION_FAILED' };
+  if (!parsed.success) return { ok: false, errorKey: 'CONTACT_INVALID_PAYLOAD' };
   return submitContactMessage(parsed.data);
 };
 ```
@@ -114,9 +115,10 @@ export const submitContact = async (payload: ContactFormPayload): Promise<Result
 Colocate with the feature:
 
 ```
-services/contact.ts           # I/O + DTO mapping
+services/contact.ts           # I/O + DTO type + mapper
+services/contact.test.ts      # mapper tests
 actions/submit-contact.ts     # 'use server' thin shell (if needed)
-lib/contact-schema.ts         # zod + mappers — tested
+lib/contact-schema.ts         # zod schema — shared with the form
 constants/error-keys.ts       # ContactErrorKey union
 types/result.ts               # shared Result (repo-level, once)
 lib/http.ts                   # shared fetch client (repo-level, once)
@@ -131,5 +133,5 @@ Kebab-case filenames, named exports, no barrel `index.ts`.
 - `rg "<VendorDto name>" --glob '!<feature>/services/**'` returns nothing; no vendor type escapes the service file.
 - `rg "throw " <feature>/services` returns only invariant guards (programmer errors), never a user-facing failure.
 - Every key in the operation's `Result<T, K>` is in `constants/error-keys.ts`; a foreign key is a type error at the call site.
-- Pure mappers in `lib/` have tests; the repo's `typecheck`, `lint`, and `test` scripts pass.
+- Mappers have tests next to their service; the repo's `typecheck`, `lint`, and `test` scripts pass.
 - A reader can follow call site → service → `http` without a fourth file.

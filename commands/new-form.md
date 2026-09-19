@@ -31,7 +31,7 @@ Load the `pxkit-form` skill (and `pxkit-conventions` for errors/hooks when wirin
 ## 4. Build
 
 - **Markup**: shadcn Field primitives; `data-invalid` + `aria-invalid` together; `InputGroup` for buttons-in-inputs.
-- **Logic**: `useForm` + `zodResolver`, validation `mode` chosen deliberately (`onTouched` default, `onChange` only when a field needs per-keystroke feedback); double-submit guard via async hook or `isSubmitting`.
+- **Logic**: `useForm` + `zodResolver`, validation `mode` chosen deliberately (`onTouched` default, `onChange` only when a field needs per-keystroke feedback); double-submit guard via `form.formState.isSubmitting`.
 - **Submit**: call service/action returning `Result<T, K>`; surface `{ ok: false, errorKey }` via toast or root error — never hardcoded strings.
 - **Files**: kebab-case, colocated with feature; schema in `lib/`; no barrel `index.ts`.
 

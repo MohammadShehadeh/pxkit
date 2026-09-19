@@ -38,7 +38,7 @@ const parseSubscription = (dto: VendorSubscriptionDto): Subscription => ({
 });
 ```
 
-- **Validate at the boundary with zod.** Schemas co-located with the service; payload types via `z.infer`. The same schema drives form validation:
+- **Validate at the boundary with zod.** Schemas live in the feature's `lib/` (`lib/contact-schema.ts`) so the service and the form import the same one; payload types via `z.infer`:
 
 ```ts
 export const contactFormSchema = z.object({
@@ -114,7 +114,7 @@ export const createHttp = ({ baseUrl, headers }: HttpConfig) => {
   };
 };
 
-// lib/http-clients.ts — one instance per backend; a second base URL / auth is a new instance, not a branch
+// still lib/http.ts — one instance per backend; a second base URL / auth is a new instance, not a branch
 export const http = createHttp({ baseUrl: env.API_BASE_URL, headers: authHeaders });      // the app's own API
 // export const billing = createHttp({ baseUrl: env.BILLING_URL, headers: billingAuth });  // a vendor, its own auth
 ```

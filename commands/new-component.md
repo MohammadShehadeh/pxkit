@@ -9,7 +9,7 @@ Load the `pxkit-conventions` skill. Think through phases 1–3 before writing an
 
 ## 1. Understand — role before markup
 
-- **Place it in the tree**: is this a page-level section, a block inside one, or a primitive? It must sit at page → section → primitive depth — if it only forwards props downward, it shouldn't exist.
+- **Place it in the tree**: is this a page-level section or a primitive inside one? It must sit at page → section → primitive depth — if it only forwards props downward, it shouldn't exist.
 - **Search first**: an existing shadcn/ui primitive or house component may already do this. Compose or extend before creating; a new shared primitive is the last resort, only when no shared one fits.
 - **Enumerate its states up front**: default, hover/focus, loading, empty, error, disabled — whichever apply. Every visible state must trace to a prop or state in the design; discovering states mid-build is how boolean props sneak in.
 - **Name it by business meaning**: `MessageRow`, `PlanCard` — not `ListItem2`, `Wrapper`.

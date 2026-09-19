@@ -27,10 +27,10 @@ Inspect the repo: reuse an existing form pattern, schema location, and submit ho
 
 ## 2. Schema first
 
-- Export a **zod schema** colocated with the feature (`lib/` or next to the form component).
+- Export a **zod schema** from the feature's `lib/` (`lib/checkout-schema.ts`); the service that receives the payload imports the same one.
 - Derive the form type: `type CheckoutFormValues = z.infer<typeof checkoutSchema>`.
 - List **validation failures** (field-level, from zod) and **submit failures** (server/network) separately.
-- Submit failures are SCREAMING_SNAKE `ErrorKey` literals added to the feature's `constants/error-keys.ts` before wiring submit, named by reason when known (`CONTACT_RATE_LIMITED`), operation catch-all only otherwise (`pxkit-conventions`: `errors` rule).
+- Submit failures are SCREAMING_SNAKE `ErrorKey` literals added to the feature's `constants/error-keys.ts` before wiring submit, named by reason when known (`CONTACT_MESSAGE_TOO_LONG`), operation catch-all only otherwise (`pxkit-conventions`: `errors` rule).
 
 **Present the schema, the field list with defaults, and the error keys.** Wait for confirmation.
 
@@ -82,7 +82,7 @@ const form = useForm<CheckoutFormValues>({
 ```
 
 - `onTouched` validates after first blur, then live. `onChange` only for a field that needs per-keystroke feedback.
-- Guard double-submit with `form.formState.isSubmitting` or the repo's per-button async hook (`{ isProcessing, execute }`).
+- Guard double-submit with `form.formState.isSubmitting`; RHF already tracks it.
 - The submit handler calls a **service or server action** returning `Result<T, K>` (`pxkit-service` when the boundary doesn't exist yet).
 - On `{ ok: false, errorKey }`: set root error state or toast from resolved copy (``t(`errors.${errorKey}`)`` / `errorCopy[errorKey]`). On `{ ok: true }`: reset or redirect per the journey.
 
@@ -92,7 +92,7 @@ Colocate with the feature (route folder or `features/<name>/`):
 
 ```
 components/checkout-form.tsx    # 'use client' — markup + useForm
-lib/checkout-schema.ts          # zod schema + z.infer type (or schema next to form if tiny)
+lib/checkout-schema.ts          # zod schema + z.infer type — shared with the service
 actions/submit-checkout.ts      # 'use server' — thin shell → service
 services/checkout.ts            # external call, DTO map, Result return
 constants/error-keys.ts         # CheckoutErrorKey union
@@ -103,7 +103,7 @@ Kebab-case filenames, named arrow-const export, no barrel `index.ts`.
 ## 7. Verify
 
 - Every field validates per schema; the invalid state shows on the correct `Field` with both attributes set.
-- Submit renders loading/disabled while processing, then success and each `errorKey` path from step 2.
+- Submit renders loading/disabled while `isSubmitting`, then success and each `errorKey` path from step 2.
 - `rg "toast\(|toast\.error\(" <form files>` shows only resolved copy, never a string literal.
 - `rg "space-y-" <form files>` returns nothing inside form markup.
 - Typecheck passes with the narrowed `Result<T, K>` at the call site.

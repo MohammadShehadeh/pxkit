@@ -11,7 +11,7 @@ The house style, condensed. Full rules with examples live in this skill's `refer
 
 Everything else in this skill is judgment. These are not.
 
-- **Traceability.** A reader must understand what a function or component does without opening more than one other file. If understanding it takes 3–4 jumps, the structure is wrong: inline it, colocate it, or pass the data directly.
+- **Traceability.** A reader must understand what a function or component does by opening at most two other files. If it takes 3–4 jumps, the structure is wrong: inline it, colocate it, or pass the data directly.
 - **Flat call stacks.** Page → section → primitive. Component → hook → service → boundary. No pass-through wrappers, no helper that only calls another helper, no prop drilled past one intermediate.
 - **One concept, one file.** Everything only one file uses lives in that file: a component's props interface, its local sub-components, its constants, its variant map, its 3-line helper. Move a thing out only when a second file imports it. A reader gets the full picture from one file, not from five 10-line files.
 - **Duplication over the wrong abstraction.** Two similar blocks of code are fine. A shared function that needs a flag, an options bag, or a generic parameter to serve two callers is two functions. Sharing and abstracting are different moves: a thing that already exists moves to a shared file the moment a second file imports it; *unifying* similar code into a new abstraction waits for the third identical case.
@@ -66,7 +66,7 @@ Everything else in this skill is judgment. These are not.
 
 ### Hooks & state
 
-- Hooks return an object, never a tuple: `status` plus only the derived flags call sites read.
+- Hooks return an object, never a tuple. A multi-state async flow exposes `status` plus only the derived flags call sites read; a single in-flight flag (`isPending` from a transition) needs no `status`.
 - Local async state is **one `status` union in one `useState`** (`'idle' | 'loading' | 'success' | 'error'`); discriminated-with-payload only when `data`/`errorKey` must be tied to the state. Never parallel `isLoading`/`isError` booleans; never a stored boolean that could be derived.
 - Failures carry an `errorKey`, never a message string.
 - **Server state lives in a query cache (TanStack Query)**, never `useState` + `useEffect` + `fetch`. Live updates are `refetchInterval` / `invalidateQueries` / socket `setQueryData`, never a hand-rolled `setInterval`.
@@ -105,7 +105,7 @@ Everything else in this skill is judgment. These are not.
 - Every fetch goes through **one shared `http` client** (`lib/http.ts`) that owns base URL, auth headers, JSON, timeout, and status → `errorKey` mapping. A service names the endpoint, narrows the keys, and maps the DTO; it never re-types `fetch` + headers + `try/catch`.
 - Vendor DTOs stop at the service file. Parse wire values to domain types **once** in the mapper (`parseInvoice`: strings → `Date`/`number`/unions); nothing downstream re-parses.
 - Format at the edge with pure `format*` helpers (`Intl.*` built once at module scope), never in the service, never inlined in JSX.
-- Search/sort/paginate server-side when the API supports it (tested `buildQuery(filters)`); client-side only for small in-memory lists, as pure `lib/` functions composed in a `useMemo` derivation. The pager total is `filtered.length`, never a stored counter.
+- Search/sort/paginate server-side when the API supports it (tested `buildQuery(filters)`); client-side only for small in-memory lists, as pure `lib/` functions composed in a derivation (plain expressions under React Compiler, `useMemo` otherwise). The pager total is `filtered.length`, never a stored counter.
 - **Errors are codes, not sentences.** `errorKey` is a SCREAMING_SNAKE literal from the string-literal `ErrorKey` union. Shared keys are transport/session only (`NETWORK`, `TIMEOUT`, `UNAUTHORIZED`, `RATE_LIMITED`); everything else is feature-prefixed and **named by reason when known** (`INVOICE_NOT_FOUND`), with the operation catch-all (`INVOICE_FETCH_FAILED`) only for unknown reasons.
 - Status and exception mapping happen once, in `errorKeyFromResponse` / `errorKeyFromException`. `meta` carries interpolation values only. Copy resolves at render time (``t(`errors.${errorKey}`, meta)`` or an exhaustive `Record<ErrorKey, string>`); no hardcoded user-facing error strings anywhere.
 - Guard clauses and early returns over `else` mazes. `try/catch` at I/O with `console.error('Error in <fn>::', error)`; raw error details stop at the log.
