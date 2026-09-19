@@ -5,16 +5,14 @@ description: The pxkit debugging method for TypeScript, React, and Next.js — r
 
 # pxkit Debug
 
-Bugs are found by **narrowing location**, fixed by **tracing causation**, and shipped by **checking the blast radius**. The first place a bug is visible is almost never where it lives, so a fix applied there is a patch over a symptom. Work the five steps in order and report using the format at the end.
+Bugs are found by **narrowing location**, fixed by **tracing causation**, and shipped by **checking the blast radius**. The first place a bug is visible is rarely where it lives. Work the five steps in order and report in the format at the end.
 
 ## Gates
-
-Do not skip ahead past any of these; each exists because skipping it is how a "fix" ships a second bug.
 
 - **No fix without a reproduction.** If you cannot reproduce, say so and ask for the input, route, or account state that triggers it.
 - **No edit before the root cause is named** as "correct input becomes wrong output at `file:line` because <assumption that doesn't hold>".
 - **No edit to shared code before its consumers are listed** (step 4).
-- **No fix that adds a boolean flag to a shared function** so two callers can disagree; that is two functions.
+- **No fix that adds a flag to a shared function** so two callers can disagree. That is two functions; duplicate it.
 
 ## 1. Localize — walk the tree down
 
@@ -68,7 +66,7 @@ The root cause often sits in shared code, and the higher the abstraction, the mo
 
 ## Report format
 
-Report in this shape so the reader can audit the reasoning, not just the diff:
+Report in this shape:
 
 ```text
 Reproduction: <route / input / state> → <observed> (expected <…>)

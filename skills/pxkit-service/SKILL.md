@@ -9,16 +9,17 @@ How to wrap external chaos behind a typed boundary. Full rules in [references/se
 
 ## Gates
 
-- **No `fetch`, headers, `try/catch`, or `AbortSignal.timeout` inside a service** when a shared `http` client exists (or can be created once). Re-typing them per service is the boilerplate that multiplies by every endpoint in a large codebase.
-- **No throw crosses into the UI.** A service returns `{ ok: false, errorKey }`; a thrown error becomes an unhandled rejection and a blank screen.
-- **No vendor DTO type leaves the service file.** Once `subscription_id` reaches a component, the vendor owns your codebase's vocabulary.
-- **No `process.env` in a service.** Read the typed `env.ts` so a missing variable fails at boot, not at the first request.
+- **No `fetch`, headers, `try/catch`, or `AbortSignal.timeout` inside a service** when a shared `http` client exists (or can be created once). The client owns them.
+- **No throw crosses into the UI.** A service returns `{ ok: false, errorKey }`.
+- **No vendor DTO type leaves the service file.**
+- **No `process.env` in a service.** Read the typed `env.ts`.
 - **No error key that is a sentence, and no `_FAILED` suffix on a key whose reason is known.**
+- **No base service class, generic repository, or per-feature `http` wrapper.** One `http` client, then plain functions; a second wrapper is a second place to look.
 - **Present the operation contract (step 2) and wait for confirmation** before creating files.
 
 ## 1. Inspect the repo
 
-Before creating files, find what already exists and reuse it:
+Find what already exists and reuse it:
 
 - `Result<T, K>` type — define once if missing (`types/result.ts`).
 - Shared `http` client (`lib/http.ts`) — define once if missing; it owns base URL, auth headers, JSON, timeout, and status → `errorKey` mapping.
@@ -45,11 +46,11 @@ Add new keys to the feature's `constants/error-keys.ts`. Name the **reason when 
 | Pure mapping / validation logic | `lib/` — `parseInvoice`, `buildQuery` | Yes — colocated `*.test.ts` |
 | I/O shell | `services/` or `actions/` | Integration/manual; logic stays in `lib/` |
 
-Vendor DTO shapes never leave the service file; map to internal domain types inside it, parsing wire values (date strings, numeric strings, vendor enums) to domain types **once** there.
+The mapper parses wire values (date strings, numeric strings, vendor enums) to domain types **once**; nothing downstream re-parses.
 
 ## 4. Service function template
 
-The service names the endpoint, narrows the keys, and maps the DTO. Nothing else:
+The service names the endpoint, narrows the keys, and maps the DTO:
 
 ```ts
 // services/contact.ts — write with no body payload back
@@ -126,11 +127,9 @@ Kebab-case filenames, named exports, no barrel `index.ts`.
 
 ## 8. Verify
 
-Run each check; do not report done on a hunch.
-
 - `rg "fetch\(|AbortSignal\.timeout|process\.env" <feature>/services <feature>/actions` returns nothing (raw-SDK services excepted, and those show `Error in <fn>::` on every catch).
 - `rg "<VendorDto name>" --glob '!<feature>/services/**'` returns nothing; no vendor type escapes the service file.
 - `rg "throw " <feature>/services` returns only invariant guards (programmer errors), never a user-facing failure.
 - Every key in the operation's `Result<T, K>` is in `constants/error-keys.ts`; a foreign key is a type error at the call site.
 - Pure mappers in `lib/` have tests; the repo's `typecheck`, `lint`, and `test` scripts pass.
-- Final test: would a senior engineer call this overcomplicated?
+- A reader can follow call site → service → `http` without a fourth file.

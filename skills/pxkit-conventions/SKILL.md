@@ -5,14 +5,22 @@ description: The pxkit house style for TypeScript, React, and Next.js — naming
 
 # pxkit Conventions
 
-The house style, condensed. It exists so that every change reads as if one engineer wrote it: flat trees, typed boundaries, errors as keys, nothing speculative. Full rules with examples live in this skill's `references/` directory.
+The house style, condensed. Full rules with examples live in this skill's `references/` directory.
+
+## Red lines
+
+Everything else in this skill is judgment. These are not.
+
+- **Traceability.** A reader must understand what a function or component does without opening more than one other file. If understanding it takes 3–4 jumps, the structure is wrong: inline it, colocate it, or pass the data directly.
+- **Flat call stacks.** Page → section → primitive. Component → hook → service → boundary. No pass-through wrappers, no helper that only calls another helper, no prop drilled past one intermediate.
+- **Duplication over the wrong abstraction.** Two similar blocks of code are fine. A shared function that needs a flag, an options bag, or a generic parameter to serve two callers is two functions. Extract only when the third caller arrives and the shape is identical.
+- **Simple over clever.** The obvious solution beats the elegant one. If a reviewer would need to think to see that it works, rewrite it so they don't.
+- **Written for humans.** Names say what the value is in business terms (`isEligibleForRenewal`, not `flag2`). Comments explain *why*, never restate *what* the code already says. No comment is better than a comment that repeats the line below it.
 
 ## How to work with this skill
 
-Follow these steps in order for every task. Each one prevents a specific, expensive mistake.
-
-1. **Inspect the repo before writing** — layout (route-colocated vs `features/`), path aliases, UI layer, test runner, existing `http` client / `Result` type / error-key union / `format*` helpers. When the repo already has an equivalent pattern, match it; a parallel copy is how large repos rot. When a rule below says "the project's …", the repo wins over any example path named here.
-2. **Read the topic reference before touching that area.** The cheat sheet is for orientation; the reference holds the exact shape, the examples, and the exceptions. Reading it first is cheaper than a review round. Map:
+1. **Inspect the repo before writing.** Layout (route-colocated vs `features/`), path aliases, UI layer, test runner, and the shared layers already in place: `http` client, `Result` type, error-key union, `format*` helpers. Match what exists; a second copy of a shared layer is worse than either copy alone. When a rule here says "the project's …", the repo wins over any example path.
+2. **Read the topic reference before touching that area.** The cheat sheet orients; the reference has the exact shape, the examples, and the exceptions.
 
    | You are about to… | Read first |
    | --- | --- |
@@ -27,16 +35,16 @@ Follow these steps in order for every task. Each one prevents a specific, expens
    | write or place tests | `testing` |
    | review a diff | `review-checklist` |
 
-3. **Plan, then confirm.** State the approach as verifiable targets and a surgical change set (with an explicit out-of-scope list) and wait for confirmation before coding. Ask when the request is ambiguous; do not pick an interpretation and run.
-4. **Self-review before reporting done.** Run the repo's `typecheck`, `lint`, and `test` scripts, then walk `references/review-checklist.md` over your own diff. A violation you catch is free; one the reviewer catches costs a round trip.
+3. **Plan, then confirm.** State the approach as verifiable targets and a surgical change set with an explicit out-of-scope list. Wait for confirmation. Ask when the request is ambiguous instead of picking an interpretation.
+4. **Self-review before reporting done.** Run the repo's `typecheck`, `lint`, and `test` scripts, then walk `references/review-checklist.md` over your own diff.
 
 ## Cheat sheet
 
 ### Process
 
 - Plan before coding; turn vague asks into verifiable targets; confirm the approach.
-- Simplest code that works. No speculative abstractions, no flexibility nobody asked for. The test: would a senior engineer call this overcomplicated?
-- Surgical diffs. Every changed line traces back to the request; neighboring code is not "improved" on the way.
+- Minimum code that solves the problem. No speculative abstractions, no flexibility nobody asked for.
+- Surgical diffs. Every changed line traces to the request; neighboring code is left alone.
 - Say "I don't know" instead of guessing. Push back when a simpler approach exists.
 
 ### Naming & files
@@ -44,7 +52,6 @@ Follow these steps in order for every task. Each one prevents a specific, expens
 - kebab-case for every filename, components included. One primary export per file; filename mirrors the export.
 - `.tsx` if and only if the file contains JSX.
 - camelCase variables and functions; PascalCase components and types. Booleans read `is/has/should`; internal handlers `handle*`; callback props `on*`.
-- Name business meaning, not the technical accident: `isEligibleForRenewal`, never `checkFlag2`.
 - **No barrel files.** Never create an `index.ts` that only re-exports. Import the defining file directly, via the project's alias.
 
 ### Components
@@ -52,8 +59,8 @@ Follow these steps in order for every task. Each one prevents a specific, expens
 - Named arrow-function `const` with a named export. **No default exports** except Next.js file conventions (`page.tsx`, `layout.tsx`, `sitemap.ts`).
 - Props: `interface <Component>Props` (no `I` prefix), destructured in the signature. Only what the component reads: two fields, not the whole entity. `children: React.ReactNode`.
 - Compound components are flat named exports from one file (`Card`, `CardHeader`), never `Card.Header` statics.
-- Data-driven rendering: content in typed `as const` arrays, mapped to markup. New entry = new array item, not new JSX.
-- **Flat trees**: page → section → primitive. No pass-through wrappers. No prop drilled past one intermediate; compose via `children`/slot props, read data where it is used, lift state only to the lowest common owner.
+- Data-driven rendering: content in typed `as const` arrays, mapped to markup.
+- Compose via `children`/slot props, read data where it is used, lift state only to the lowest common owner.
 - `memo`/`useMemo`/`useCallback` only for measured hot paths; skip them entirely in React Compiler projects.
 
 ### Hooks & state
@@ -109,13 +116,12 @@ Follow these steps in order for every task. Each one prevents a specific, expens
 - Responsibility-based dirs: `components/`, `hooks/`, `actions/`, `services/`, `types/`, `constants/`, `lib/`. Create a directory only when a file exists for it.
 - Separate decisions from actions: pure logic in `lib/` with colocated `*.test.ts`; thin shells (hooks, actions, services) call it. Use the repo's test runner (Vitest + Testing Library when none is set).
 
-## Non-negotiables
-
-These are the rules a reviewer will reject a diff for without discussion. Everything else is judgment within the references.
+## Reviewer rejects on sight
 
 - No barrel `index.ts`; no default exports outside Next.js file conventions; no PascalCase filenames.
 - No `any`; no `enum`; no parallel async booleans; no server data in `useState` + `fetch`.
 - No raw `fetch` in a service when a shared `http` client exists; no service that throws to the UI; no vendor DTO type imported outside its service.
 - No hardcoded user-facing error strings; no error key that is a sentence; no `process.env` outside `env.ts`.
 - No inline styles, arbitrary hex, or manual `dark:` overrides; no raw-div form markup when Field primitives exist.
+- No helper, wrapper, or abstraction with a single caller; no comment that restates the code; no change that requires 3+ file jumps to follow.
 - No code before the plan is confirmed; no changed line that doesn't trace to the request.

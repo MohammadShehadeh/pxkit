@@ -9,11 +9,12 @@ End-to-end form recipe. Markup and control rules in [references/forms.md](refere
 
 ## Gates
 
-- **Schema and error keys before any markup.** Markup written first gets retrofitted to the schema and the two drift; the schema written first drives the type, the fields, the resolver, and the server validation from one source.
+- **Schema and error keys before any markup.** The schema drives the type, the fields, the resolver, and the server validation; markup written first drifts from it.
 - **Present step 2 and wait for confirmation** before building UI.
-- **No raw `div` + `space-y-*` form markup** when the project has Field primitives; the primitives carry the invalid/disabled styling and the label wiring.
-- **No hardcoded user-facing error strings.** Submit failures render from an `errorKey` resolved at render time.
-- **No thrown error crosses from the boundary into the form.** The submit handler consumes `Result`, never `try/catch`-and-toast.
+- **No raw `div` + `space-y-*` form markup** when the project has Field primitives.
+- **No hardcoded user-facing error strings.** Submit failures render from an `errorKey`.
+- **No `try/catch` in the submit handler.** It consumes `Result`; the boundary already caught.
+- **No generic form wrapper or field factory.** Each form is written out; two similar forms are cheaper than one configurable one.
 
 ## 1. Decide — form library or not
 
@@ -22,13 +23,13 @@ End-to-end form recipe. Markup and control rules in [references/forms.md](refere
 | 2+ fields, validation rules, or submit state | **RHF + zod** — follow this skill |
 | Single uncontrolled input (search, inline rename) | Plain state or a form action; no form library |
 
-Inspect the repo: reuse an existing form pattern, schema location, and submit hook before inventing a parallel one. If the ask is a single input, say so and stop; a form library for one field is over-engineering.
+Inspect the repo: reuse an existing form pattern, schema location, and submit hook. If the ask is a single input, say so and stop.
 
 ## 2. Schema first
 
 - Export a **zod schema** colocated with the feature (`lib/` or next to the form component).
 - Derive the form type: `type CheckoutFormValues = z.infer<typeof checkoutSchema>`.
-- List **validation failures** (field-level, from zod) and **submit failures** (server/network) separately; they render in different places.
+- List **validation failures** (field-level, from zod) and **submit failures** (server/network) separately.
 - Submit failures are SCREAMING_SNAKE `ErrorKey` literals added to the feature's `constants/error-keys.ts` before wiring submit, named by reason when known (`CONTACT_RATE_LIMITED`), operation catch-all only otherwise (`pxkit-conventions`: `errors` rule).
 
 **Present the schema, the field list with defaults, and the error keys.** Wait for confirmation.
@@ -55,7 +56,7 @@ Buttons inside inputs: `InputGroup` + `InputGroupAddon` (with `InputGroupInput`,
 
 - `'use client'` on the form component leaf only.
 - Wrap fields in `FieldGroup` → `Field` → `FieldLabel` + control + optional `FieldDescription`; field errors in `FieldError`.
-- Invalid/disabled need both attributes: **`data-invalid` / `data-disabled` on `Field`** (styles label and description) and **`aria-invalid` / `disabled` on the control** (styles the control and informs assistive tech).
+- Invalid/disabled need both attributes: **`data-invalid` / `data-disabled` on `Field`** (styles label and description) and **`aria-invalid` / `disabled` on the control**.
 - Connect RHF with `register` or `Controller`; match what the repo already uses.
 - Submit errors render from `errorKey` at display time.
 
@@ -80,8 +81,8 @@ const form = useForm<CheckoutFormValues>({
 });
 ```
 
-- `onTouched` validates after first blur and then live, so the form doesn't shout while the user is still typing. Choose `onChange` deliberately, per field need.
-- Guard double-submit with a per-button async hook (`{ isProcessing, execute }`) or `form.formState.isSubmitting`; not a hand-managed disabled flag.
+- `onTouched` validates after first blur, then live. `onChange` only for a field that needs per-keystroke feedback.
+- Guard double-submit with `form.formState.isSubmitting` or the repo's per-button async hook (`{ isProcessing, execute }`).
 - The submit handler calls a **service or server action** returning `Result<T, K>` (`pxkit-service` when the boundary doesn't exist yet).
 - On `{ ok: false, errorKey }`: set root error state or toast from resolved copy (``t(`errors.${errorKey}`)`` / `errorCopy[errorKey]`). On `{ ok: true }`: reset or redirect per the journey.
 
@@ -102,8 +103,8 @@ Kebab-case filenames, named arrow-const export, no barrel `index.ts`.
 ## 7. Verify
 
 - Every field validates per schema; the invalid state shows on the correct `Field` with both attributes set.
-- Submit renders loading/disabled while processing, then success and **each** `errorKey` path from step 2.
+- Submit renders loading/disabled while processing, then success and each `errorKey` path from step 2.
 - `rg "toast\(|toast\.error\(" <form files>` shows only resolved copy, never a string literal.
 - `rg "space-y-" <form files>` returns nothing inside form markup.
 - Typecheck passes with the narrowed `Result<T, K>` at the call site.
-- Final test: would a senior engineer call this overcomplicated?
+- The form component, its schema, and its action can each be read without opening a fourth file.

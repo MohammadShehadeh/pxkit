@@ -9,14 +9,15 @@ Full detail in [references/nextjs.md](references/nextjs.md). Load `pxkit-convent
 
 ## Gates
 
-- **The page file contains no business logic and no markup beyond composition.** Logic in a page file cannot be reused by the next route and cannot be unit-tested without rendering the route.
-- **No `'use client'` on a page or section.** Interactivity lives in a leaf; a client page drags every section into the client bundle.
-- **No metadata block copy-pasted between sibling pages.** Repeated shapes go through the factory so a change to the OG image is one edit.
-- **No route added without registering it in the typed routes config** when the repo has one; nav and `sitemap.ts` derive from it, and an unregistered route is invisible to both.
+- **The page file only composes sections.** No business logic, no markup beyond layout.
+- **No `'use client'` on a page or section.** A client page drags every section into the client bundle; interactivity lives in a leaf.
+- **No layout wrapper or section "base component" invented for one page.** Use the repo's container; otherwise plain `<section>`.
+- **No metadata block copy-pasted between sibling pages** once there are three; they go through the factory.
+- **No route added without registering it in the typed routes config** when the repo has one; nav and `sitemap.ts` derive from it.
 
 ## Recipe
 
-1. **Page = thin server component** (`export default function`, the one place a default export is allowed) that only composes named section components:
+1. **Page = thin server component** (`export default function`, the one place a default export is allowed) composing named section components:
 
 ```tsx
 export default function Home() {
@@ -29,9 +30,9 @@ export default function Home() {
 }
 ```
 
-Wrap sections in the project's layout/container component when one exists; do not introduce a parallel wrapper.
+Wrap sections in the project's layout/container component when one exists.
 
-2. **Sections are server components**: kebab-case files, named arrow-const exports, colocated with the route/feature (or in shared `components/` only when genuinely cross-feature). Content is a typed `as const` array mapped to markup, so editing copy never means editing JSX structure. **Keep the tree flat**: page → section → primitive; no pass-through wrappers, no prop drilled past one intermediate.
+2. **Sections are server components**: kebab-case files, named arrow-const exports, colocated with the route (shared `components/` only when used by 2+ routes). Content is a typed `as const` array mapped to markup. **Keep the tree flat**: page → section → primitive; no pass-through wrappers, no prop drilled past one intermediate. A section's markup should be readable in its own file without following imports.
 
 3. **Interactivity goes to the leaves.** A section needing animation imports `MotionDiv` from the `components/motion.tsx` client boundary; it does not become a client component itself. Icons import directly from the project's icon library (they render fine server-side).
 
@@ -45,7 +46,7 @@ Wrap sections in the project's layout/container component when one exists; do no
 
 - `rg "'use client'" <route folder>` matches only leaf files, never `page.tsx`, `layout.tsx`, or a section.
 - `rg "export default" <route folder>` matches only Next.js file conventions.
-- The page renders every section's empty/loading/error state where one applies (`pxkit-conventions`: `ui-ux` rule).
+- Every section that loads data has its empty, loading, and error state.
 - Metadata resolves through the root template (check the rendered `<title>`), and the canonical URL is absolute.
 - The route appears in nav and `sitemap.ts` without a second hardcoded path.
 - The repo's `typecheck` and `lint` scripts pass.

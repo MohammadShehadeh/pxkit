@@ -21,7 +21,7 @@ The canonical checklist for reviewing code against the house conventions. Used b
 7. **Styling** — inline styles; arbitrary hex or raw palette classes over semantic tokens; manual `dark:` color overrides; class concatenation without `cn()`; `space-x/y-*` instead of `gap-*`; manual z-index on overlays; missing a11y (focus-visible, ARIA on icon-only, `sr-only`).
 8. **Component composition** — primitives rebuilt with raw markup (`border-t` div vs `Separator`, styled span vs `Badge`, `animate-pulse` divs vs `Skeleton`); items outside their Group wrapper; form markup as raw divs instead of `FieldGroup`/`Field`; Dialog/Sheet/Drawer missing a Title; Avatar missing `AvatarFallback`; icon props as string keys to lookup maps; sizing classes on icons inside components.
 9. **Client boundaries** — `'use client'` higher than necessary; direct motion-library imports bypassing the `motion.tsx` boundary.
-10. **Simplicity & scope** — nested conditionals where guard clauses fit; speculative abstraction; unrequested flexibility; changes untraceable to the task.
+10. **Simplicity, traceability & scope** — nested conditionals where guard clauses fit; speculative abstraction; a helper, wrapper, or generic with a single caller; a shared function grown a flag or options bag to serve a second caller (should be two functions); logic that takes 3+ file jumps to follow; a clever construct where the plain one works; comments that restate the code; unrequested flexibility; changes untraceable to the task.
 
 ## Output format
 

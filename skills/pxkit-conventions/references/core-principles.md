@@ -33,7 +33,10 @@ In a small repo you hold all of this in your head; in a large one, skipping the 
 
 ## Code philosophy
 
-- **Simplicity first.** Write the minimum code that solves the problem. No speculative abstractions. No flexibility nobody asked for. The test: would a senior engineer call this overcomplicated?
+- **Simplicity first.** Write the minimum code that solves the problem. No speculative abstractions. No flexibility nobody asked for. The obvious solution beats the clever one; if a reviewer has to think to see that it works, rewrite it.
+- **Duplication is cheaper than the wrong abstraction.** Two similar blocks are fine. A shared function that needs a flag, an options bag, or a generic parameter to serve two callers is two functions. Extract on the third identical caller, not the second similar one.
+- **Traceability is a red line.** Understanding a function or component must not take more than one other file. Call stacks stay flat: page → section → primitive, component → hook → service → boundary. No helper that only calls another helper, no wrapper that only forwards, no indirection added "for later".
+- **Comments explain why, for the next human.** A comment that restates the line below it is noise; delete it. Keep the ones that record a non-obvious decision, a workaround, or a constraint the code cannot express.
 - **Surgical changes.** Touch only what the task requires. Do not improve neighboring code. Do not refactor what is not broken. Every changed line should trace back to the request.
 - **Return early instead of building conditional mazes.** Validate and bail at the top; keep the happy path unindented. Avoid `else` when a guard clause works.
 - **Name the business meaning, not the technical accident.** `isEligibleForRenewal`, not `checkFlag2`.
