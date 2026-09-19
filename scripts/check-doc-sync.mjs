@@ -3,7 +3,7 @@
 //
 // Copies carry a "<!-- Copy of <path> ... -->" marker on line 1. Their prose and
 // cross-skill links DELIBERATELY differ from the canonical (a link to a reference the
-// skill doesn't ship is rewritten to a "`agent-skills-conventions` skill: `x` rule" pointer), so
+// skill doesn't ship is rewritten to a "`pxkit-conventions` skill: `x` rule" pointer), so
 // a byte diff would be all false positives. What must never diverge is the CODE — the
 // fenced ```blocks``` are the same lesson in both places. This checks exactly those.
 //

@@ -5,11 +5,11 @@ argument-hint: <operation-name> [external system / endpoint]
 
 Scaffold a service boundary: $ARGUMENTS
 
-Load the `agent-skills-service` skill (and `agent-skills-conventions` for structure/testing). Phase 2 is the plan — no code before confirmation.
+Load the `pxkit-service` skill (and `pxkit-conventions` for structure/testing). Phase 2 is the plan — no code before confirmation.
 
 ## 1. Inspect the repo
 
-Find and reuse: `Result<T, K>`, the shared `http` client (`lib/http.ts`), `toErrorKey` / `toCaughtErrorKey`, typed `env.ts`, existing services in the same feature. Match location and naming — do not parallel-invent.
+Find and reuse: `Result<T, K>`, the shared `http` client (`lib/http.ts`), `errorKeyFromResponse` / `errorKeyFromException`, typed `env.ts`, existing services in the same feature. Match location and naming — do not parallel-invent.
 
 ## 2. Define the operation contract
 
@@ -25,7 +25,7 @@ Find and reuse: `Result<T, K>`, the shared `http` client (`lib/http.ts`), `toErr
 
 ## 3. Build
 
-- **Schema** colocated — same schema can drive form validation later (`agent-skills-form`).
+- **Schema** colocated — same schema can drive form validation later (`pxkit-form`).
 - **Service**: goes through the shared `http` client (no raw `fetch`/headers/timeout — the client owns those); DTO mapping stays inside the file; return `Result`, never throw to UI. Raw-SDK services (non-HTTP) keep their own try/catch with `'Error in <fn>::'`.
 - **Action/handler** (if needed): thin `'use server'` or route handler — validate, delegate, return plain `Result`.
 - **Error keys** added to feature's `constants/error-keys.ts`.

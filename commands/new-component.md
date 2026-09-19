@@ -5,7 +5,7 @@ argument-hint: <ComponentName> [where / notes]
 
 Create a component: $ARGUMENTS
 
-Load the `agent-skills-conventions` skill. Think through phases 1–3 before writing any markup.
+Load the `pxkit-conventions` skill. Think through phases 1–3 before writing any markup.
 
 ## 1. Understand — role before markup
 

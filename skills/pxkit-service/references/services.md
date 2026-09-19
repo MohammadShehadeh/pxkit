@@ -1,14 +1,11 @@
-<!-- Copy of skills/agent-skills-conventions/references/services.md so this skill installs standalone — keep in sync. -->
+<!-- Copy of skills/pxkit-conventions/references/services.md so this skill installs standalone — keep in sync. -->
 
 # Services & Boundaries
 
 **Put boundaries around external chaos.** External systems get an adapter; their shapes never become the language of the codebase.
 
-- Do not let raw database rows leak into UI logic.
-- Do not let HTTP response shapes leak into domain logic.
-- Do not let framework-specific request objects leak into business services.
-- Do not let environment variable parsing happen randomly across files — one typed, zod-validated `env.ts`.
-- Do not let Stripe, Slack, GitHub, Salesforce, or any other external system become the language of your entire codebase.
+- A vendor's shape stops at the service that owns it — DB rows, HTTP response bodies, framework request objects, and SDK types (Stripe, Slack, GitHub, Salesforce) map to domain types at the boundary and never leak into UI or business logic.
+- Env vars are read in one place: a typed, zod-validated `env.ts` — never `process.env` scattered across files.
 
 ## The service layer
 
@@ -142,7 +139,7 @@ export const fetchInvoice = async (id: string): Promise<Result<Invoice, InvoiceE
 - **Validate the response, don't just cast it.** `response.json()` is typed `T` by assertion, not proof — an owned API still drifts. Past a handful of endpoints, `schema.safeParse(res.data)` in the service before mapping; the client stays generic. It is JSON-only by design — blob / CSV / SSE responses get their own path.
 - **Writes that may fire around page exit** pass `keepalive: true` — flushing a debounced save, "mark as read", analytics. Body is capped (~64 KiB), response is fire-and-forget — never for reads.
 
-For shaping the data a service returns — parsing, formatting, search, and pagination — see the `agent-skills-conventions` skill: `data` rule.
+For shaping the data a service returns — parsing, formatting, search, and pagination — see the `pxkit-conventions` skill: `data` rule.
 
 ## Separate decisions from actions
 

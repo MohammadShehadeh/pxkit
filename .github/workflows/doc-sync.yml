@@ -1,6 +1,6 @@
 name: doc-sync
 
-# Skills that install standalone carry copies of the agent-skills-conventions reference files they
+# Skills that install standalone carry copies of the pxkit-conventions reference files they
 # need. This fails the build if a copy's code blocks drift from the canonical source.
 on:
   push:

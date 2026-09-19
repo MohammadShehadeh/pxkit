@@ -22,6 +22,13 @@ return {
 **Server state is not component state.** Data owned by the backend — lists, entities, anything fetched — belongs in a **query cache (TanStack Query by default)**, not `useState`. The `status`-union rule above is for *local* async (a form submit, a one-shot action). A `useEffect` + `useState` + `fetch` to load and hold server data is the anti-pattern the cache replaces: it refetches on every mount, can't dedupe concurrent callers, and goes stale with no way to revalidate.
 
 ```ts
+// lib/query-error.ts — carries the key through React Query's error channel, once per repo
+export class QueryError extends Error {
+  constructor(readonly errorKey: ErrorKey) {
+    super(errorKey);
+  }
+}
+
 // the query fn calls the service and unwraps Result — the boundary contract (services.md) is unchanged
 export const useInvoices = (filters: InvoiceFilters) =>
   useQuery({

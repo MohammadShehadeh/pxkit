@@ -5,7 +5,7 @@ argument-hint: <feature-name> [what it does]
 
 Build a new feature: $ARGUMENTS
 
-Load the `agent-skills-conventions` skill. Work through the phases in order — phases 1–3 are the plan; no code before it's confirmed.
+Load the `pxkit-conventions` skill. Work through the phases in order — phases 1–3 are the plan; no code before it's confirmed.
 
 ## 1. Understand — user journey & business logic
 
@@ -39,7 +39,7 @@ For every piece of state the journey needs, decide before coding:
 ## 4. Pick the feature's home
 
 - **Default: feature-colocated module** — route folder or `features/<name>/` (whichever the repo uses) owns `components/`, `hooks/`, `lib/`, `constants/`, colocated tests. Only cross-feature code is hoisted.
-- **Shared package only when** the feature is consumed by 2+ apps or must be versioned independently — then follow the `agent-skills-feature` skill as the blueprint.
+- **Shared package only when** the feature is consumed by 2+ apps or must be versioned independently — then follow the `pxkit-feature` skill as the blueprint.
 - Never manufacture a package for one consumer.
 
 ## 5. Structure — organized by responsibility
@@ -49,7 +49,7 @@ For every piece of state the journey needs, decide before coding:
 
 ## 6. Boundaries
 
-- **Every external call behind a service** returning the shared `Result<T, K>` (`{ ok: true, data } | { ok: false, errorKey }`, `K` narrowed to this operation's keys) — never throws to the UI. Follow the `agent-skills-service` skill when scaffolding a new boundary; `agent-skills-form` when the feature includes a multi-field form.
+- **Every external call behind a service** returning the shared `Result<T, K>` (`{ ok: true, data } | { ok: false, errorKey }`, `K` narrowed to this operation's keys) — never throws to the UI. Follow the `pxkit-service` skill when scaffolding a new boundary; `pxkit-form` when the feature includes a multi-field form.
 - **Failures are SCREAMING_SNAKE `ErrorKey` literals** from `constants/error-keys.ts`, named by reason when known (`INVOICE_NOT_FOUND`), operation catch-all only when it isn't; copy resolves from the key at render time — no hardcoded user-facing strings anywhere in the feature.
 - The feature composes shared UI primitives — it never redefines base UI, never reads `process.env` directly (typed `env.ts` only).
 

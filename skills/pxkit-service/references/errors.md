@@ -1,4 +1,4 @@
-<!-- Copy of skills/agent-skills-conventions/references/errors.md so this skill installs standalone — keep in sync. -->
+<!-- Copy of skills/pxkit-conventions/references/errors.md so this skill installs standalone — keep in sync. -->
 
 # Error Handling
 

@@ -1,11 +1,11 @@
-<!-- Copy of skills/agent-skills-conventions/references/nextjs.md so this skill installs standalone — keep in sync. -->
+<!-- Copy of skills/pxkit-conventions/references/nextjs.md so this skill installs standalone — keep in sync. -->
 
 # Next.js App Router
 
 ## Server-first
 
 - **Server Components by default; `'use client'` only when needed, pushed to the leaves.** Sections of a page stay server-side; interactivity lives in small leaf wrappers.
-- **Centralize client boundaries in re-export files** instead of scattering `'use client'`: a `components/motion.tsx` exporting `MotionDiv`/`MotionSpan` is the single client boundary for animation. (Icons need no boundary — import them directly from the icon library; `agent-skills-conventions` skill: `icons` rule.)
+- **Centralize client boundaries in re-export files** instead of scattering `'use client'`: a `components/motion.tsx` exporting `MotionDiv`/`MotionSpan` is the single client boundary for animation. (Icons need no boundary — import them directly from the icon library; `pxkit-conventions` skill: `icons` rule.)
 - **`'use client'` is justified by:** event handlers and local interactivity, browser APIs, stateful hooks, client-only libraries. **Not by:** rendering data (stay server), animation (`motion.tsx` boundary), icons (server-safe) — and never higher than the leaf that needs it.
 
 ## Routing & page composition

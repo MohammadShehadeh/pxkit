@@ -1,7 +1,7 @@
 {
-  "name": "agent-skills",
-  "description": "House coding conventions as self-contained agent-skills-* skills, commands, and a reviewer agent for TypeScript/React/Next.js — adapt to each repo's layout and toolchain",
-  "version": "0.6.0",
+  "name": "pxkit",
+  "description": "House coding conventions as self-contained pxkit-* skills, commands, and a reviewer agent for TypeScript/React/Next.js — adapt to each repo's layout and toolchain",
+  "version": "0.7.0",
   "license": "MIT",
   "author": {
     "name": "Mohammad Shehadeh"

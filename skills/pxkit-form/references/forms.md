@@ -1,8 +1,8 @@
-<!-- Copy of skills/agent-skills-conventions/references/forms.md so this skill installs standalone — keep in sync. -->
+<!-- Copy of skills/pxkit-conventions/references/forms.md so this skill installs standalone — keep in sync. -->
 
 # Forms
 
-Form *logic* is react-hook-form + zod; form *markup* composes the shadcn field primitives (base-layer rules in `agent-skills-conventions` skill: `ui-composition` rule). Both halves live here.
+Form *logic* is react-hook-form + zod; form *markup* composes the shadcn field primitives (base-layer rules in `pxkit-conventions` skill: `ui-composition` rule). Both halves live here.
 
 ## Logic
 
@@ -19,7 +19,7 @@ const form = useForm<CheckoutFormValues>({
 ```
 
 - Guard double-submits with a per-button async-action hook (`{ isProcessing, execute }`), not disabled-flag spaghetti.
-- Field and submit errors render from a typed `errorKey` resolved at render time — never hardcoded strings (`agent-skills-conventions` skill: `errors` rule).
+- Field and submit errors render from a typed `errorKey` resolved at render time — never hardcoded strings (`pxkit-conventions` skill: `errors` rule).
 
 ## Markup
 
