@@ -3,7 +3,7 @@
 ## Files
 
 - **kebab-case for every filename**, components included: `button.tsx`, `use-upload-file.ts`, `what-i-do.tsx`. Never PascalCase filenames, even when the export is PascalCase.
-- One primary component/hook per file; the filename mirrors the export (`input-field.tsx` → `InputField`, `use-countdown.ts` → `useCountdown`).
+- One *public* component/hook per file; the filename mirrors it (`input-field.tsx` → `InputField`, `use-countdown.ts` → `useCountdown`). The file also holds everything private to that export — sub-components, its props interface, constants, helpers. "One per file" limits what is exported, not what is declared (see [components.md](components.md)).
 - `.tsx` if and only if the file contains JSX — a hook with JSX is `.tsx`, a hook without is `.ts`. In workspace packages, hooks are logic-only `.ts` — anything returning JSX moves to `components/`, because wildcard subpath exports resolve one extension per directory (see [structure.md](structure.md)).
 - **No barrel files, no re-export middlemen.** Never create an `index.ts` that only re-exports, and never import a symbol into a file just to export it again (or alias it) so that consumers import it from there. Every symbol is imported from the file that defines it:
 

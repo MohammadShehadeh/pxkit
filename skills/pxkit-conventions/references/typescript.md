@@ -4,6 +4,7 @@
 
 - `interface` for object shapes (props, state, DTOs). `type` for unions, aliases, and function-derived types.
 - Props interfaces are named `<Component>Props` — no `I` prefix, no `Props` alone.
+- **Never inline a type definition; always declare it.** Parameters, props, return shapes, and state are typed with a named `interface`/`type` declared above their first use — never `({ a, b }: { a: string; b: number })`, never `useState<{ status: string; data?: T }>()`. A declared name says what the shape *is*; an inline literal makes the reader rebuild it from the fields every time it appears, and the second use of the same shape copies it instead of reusing it.
 
 ```ts
 interface SearchInputProps {

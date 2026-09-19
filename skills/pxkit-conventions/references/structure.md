@@ -39,6 +39,8 @@ A **feature module** groups one business capability by responsibility, not as a 
 - `services/` — external I/O, DTO → internal mapping
 - `types/`, `constants/` (e.g. `error-keys.ts`), `lib/` — pure logic; colocate `*.test.ts` here
 
+These three hold what **2+ files share**. A type, constant, or helper with a single consumer lives in that consumer's file; moving it out early spreads one concept over several files without anyone needing it there.
+
 Import via the project's path alias (`@/…`, `@feature/…`, etc.) — always the defining file, never a barrel.
 
 ## Shared package (optional)

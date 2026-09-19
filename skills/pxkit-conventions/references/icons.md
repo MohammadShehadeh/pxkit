@@ -6,11 +6,13 @@
 ```tsx
 // Bad
 const iconMap = { check: CheckIcon, alert: AlertIcon };
-const StatusBadge = ({ icon }: { icon: string }) => { const Icon = iconMap[icon]; return <Icon />; };
+interface StatusBadgeProps { icon: keyof typeof iconMap }
+const StatusBadge = ({ icon }: StatusBadgeProps) => { const Icon = iconMap[icon]; return <Icon />; };
 
 // Good
 import { CheckIcon } from 'lucide-react';
-const StatusBadge = ({ icon: Icon }: { icon: React.ComponentType }) => <Icon />;
+interface StatusBadgeProps { icon: React.ComponentType }
+const StatusBadge = ({ icon: Icon }: StatusBadgeProps) => <Icon />;
 <StatusBadge icon={CheckIcon} />
 ```
 

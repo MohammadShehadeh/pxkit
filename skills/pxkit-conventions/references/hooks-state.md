@@ -55,6 +55,11 @@ export const useInvoices = (filters: InvoiceFilters) =>
 - Context via a `createSafeContext` factory that throws when the provider is missing — no silently-undefined contexts:
 
 ```tsx
+interface SafeProviderProps<ContextValue> {
+  children: React.ReactNode;
+  value: ContextValue;
+}
+
 export function createSafeContext<ContextValue>(errorMessage: string) {
   const Context = createContext<ContextValue | null>(null);
   const useSafeContext = () => {
@@ -62,7 +67,7 @@ export function createSafeContext<ContextValue>(errorMessage: string) {
     if (ctx === null) throw new Error(errorMessage);
     return ctx;
   };
-  const Provider = ({ children, value }: { children: React.ReactNode; value: ContextValue }) => (
+  const Provider = ({ children, value }: SafeProviderProps<ContextValue>) => (
     <Context.Provider value={value}>{children}</Context.Provider>
   );
   return [Provider, useSafeContext] as const;

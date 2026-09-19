@@ -13,6 +13,7 @@ Everything else in this skill is judgment. These are not.
 
 - **Traceability.** A reader must understand what a function or component does without opening more than one other file. If understanding it takes 3–4 jumps, the structure is wrong: inline it, colocate it, or pass the data directly.
 - **Flat call stacks.** Page → section → primitive. Component → hook → service → boundary. No pass-through wrappers, no helper that only calls another helper, no prop drilled past one intermediate.
+- **One concept, one file.** Everything only one file uses lives in that file: a component's props interface, its local sub-components, its constants, its variant map, its 3-line helper. Move a thing out only when a second file imports it. A reader gets the full picture from one file, not from five 10-line files.
 - **Duplication over the wrong abstraction.** Two similar blocks of code are fine. A shared function that needs a flag, an options bag, or a generic parameter to serve two callers is two functions. Extract only when the third caller arrives and the shape is identical.
 - **Simple over clever.** The obvious solution beats the elegant one. If a reviewer would need to think to see that it works, rewrite it so they don't.
 - **Written for humans.** Names say what the value is in business terms (`isEligibleForRenewal`, not `flag2`). Comments explain *why*, never restate *what* the code already says. No comment is better than a comment that repeats the line below it.
@@ -49,7 +50,7 @@ Everything else in this skill is judgment. These are not.
 
 ### Naming & files
 
-- kebab-case for every filename, components included. One primary export per file; filename mirrors the export.
+- kebab-case for every filename, components included. One *public* export per file (the filename mirrors it); the file also holds every private thing only it uses.
 - `.tsx` if and only if the file contains JSX.
 - camelCase variables and functions; PascalCase components and types. Booleans read `is/has/should`; internal handlers `handle*`; callback props `on*`.
 - **No barrel files, no re-export middlemen.** Never create an `index.ts` that only re-exports, and never import a symbol into a file just to export it again so consumers import it from there. Import the defining file directly, via the project's alias. The one exception is a re-export that adds a directive the source lacks (`components/motion.tsx` adding `'use client'`).
@@ -57,7 +58,7 @@ Everything else in this skill is judgment. These are not.
 ### Components
 
 - Named arrow-function `const` with a named export. **No default exports** except Next.js file conventions (`page.tsx`, `layout.tsx`, `sitemap.ts`).
-- Props: `interface <Component>Props` (no `I` prefix), destructured in the signature. Only what the component reads: two fields, not the whole entity. `children: React.ReactNode`.
+- Props: a declared `interface <Component>Props` (no `I` prefix), destructured in the signature; local helper components declare theirs too. Only what the component reads: two fields, not the whole entity. `children: React.ReactNode`.
 - Compound components are flat named exports from one file (`Card`, `CardHeader`), never `Card.Header` statics.
 - Data-driven rendering: content in typed `as const` arrays, mapped to markup.
 - Compose via `children`/slot props, read data where it is used, lift state only to the lowest common owner.
@@ -73,7 +74,7 @@ Everything else in this skill is judgment. These are not.
 
 ### TypeScript
 
-- `interface` for object shapes; `type` for unions and aliases. String-literal unions or `as const` + `keyof typeof`, never `enum`.
+- `interface` for object shapes; `type` for unions and aliases. **Never inline a type definition**: parameters, props, state, and return shapes get a named `interface`/`type` declared above their first use, never `({ a }: { a: string })`. String-literal unions or `as const` + `keyof typeof`, never `enum`.
 - Derive, don't restate: `z.infer`, `ReturnType`, `keyof typeof`, `Pick`. Annotate only real contracts (params, exported signatures, a mapper's domain return); let obvious consts and returns infer.
 - `unknown` over `any`. Model invalid states out (Draft vs Saved shapes, status unions).
 - Array syntax follows the repo (`T[]` or `Array<T>`); never churn-rewrite it. JSDoc only where the contract isn't obvious from the signature.
@@ -113,15 +114,15 @@ Everything else in this skill is judgment. These are not.
 ### Structure & testing
 
 - Feature modules colocated in the app by default (route folder or `features/<name>/`, whichever the repo uses); a shared package only for 2+ consumers.
-- Responsibility-based dirs: `components/`, `hooks/`, `actions/`, `services/`, `types/`, `constants/`, `lib/`. Create a directory only when a file exists for it.
+- Responsibility-based dirs: `components/`, `hooks/`, `actions/`, `services/`, `types/`, `constants/`, `lib/`. Create a directory only when a file exists for it. `types/`, `constants/`, and `lib/` hold what 2+ files share; a type, constant, or helper with one consumer stays in that consumer's file.
 - Separate decisions from actions: pure logic in `lib/` with colocated `*.test.ts`; thin shells (hooks, actions, services) call it. Use the repo's test runner (Vitest + Testing Library when none is set).
 
 ## Reviewer rejects on sight
 
 - No barrel `index.ts`; no file that imports a symbol only to re-export it; no default exports outside Next.js file conventions; no PascalCase filenames.
-- No `any`; no `enum`; no parallel async booleans; no server data in `useState` + `fetch`.
+- No `any`; no `enum`; no inline type literal where a declared `interface`/`type` belongs; no parallel async booleans; no server data in `useState` + `fetch`.
 - No raw `fetch` in a service when a shared `http` client exists; no service that throws to the UI; no vendor DTO type imported outside its service.
 - No hardcoded user-facing error strings; no error key that is a sentence; no `process.env` outside `env.ts`.
 - No inline styles, arbitrary hex, or manual `dark:` overrides; no raw-div form markup when Field primitives exist.
-- No helper, wrapper, or abstraction with a single caller; no comment that restates the code; no change that requires 3+ file jumps to follow.
+- No helper, wrapper, or abstraction with a single caller; no type, constant, or helper moved to its own file while only one file uses it; no comment that restates the code; no change that requires 3+ file jumps to follow.
 - No code before the plan is confirmed; no changed line that doesn't trace to the request.
